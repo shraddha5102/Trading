@@ -206,6 +206,140 @@ If you encounter any issues:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+# Design Documentation
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Architecture Overview
+
+This document outlines the key design decisions and architecture of the Token Trading Table application.
+
+### Core Technologies
+
+- **Next.js 14**: Chosen for server-side rendering capabilities, built-in API routes, and modern React features
+- **TypeScript**: Ensures type safety and better developer experience
+- **Redux Toolkit**: Manages complex application state, especially for real-time trading data
+- **TanStack Query**: Handles server state and caching for API calls
+- **Tailwind CSS**: Provides utility-first styling with good developer experience and performance
+
+## Key Design Decisions
+
+### 1. Component Architecture
+
+#### Layout Structure
+- `src/components/layout/`: Contains reusable layout components
+  - `Header.tsx`: App header with navigation and user controls
+  - `StatsFooter.tsx`: Displays real-time market statistics
+
+#### UI Component Library
+- `src/components/ui/`: Custom UI components built for reusability
+  - Follows atomic design principles
+  - Each component is self-contained with its own types and styles
+  - Uses composition pattern for flexibility
+
+### 2. State Management Strategy
+
+#### Application State (Redux)
+- **Token Data**: Managed in `tokensSlice.ts`
+  - Real-time price updates
+  - Trading pair information
+  - Market statistics
+- **UI State**: Managed in `uiSlice.ts`
+  - Sorting preferences
+  - Filter settings
+  - View configurations
+
+#### Server State (TanStack Query)
+- Used for API data fetching and caching
+- Implements optimistic updates for better UX
+- Handles error states and retries
+
+### 3. Real-time Updates
+
+#### WebSocket Implementation
+- Custom `useWebSocket` hook in `src/hooks/`
+- Middleware pattern for Redux integration
+- Mocked implementation for development
+- Automatic reconnection handling
+
+#### Data Flow
+1. Initial data loaded via REST API
+2. Real-time updates received through WebSocket
+3. Updates processed by Redux middleware
+4. UI components react to state changes
+
+### 4. Performance Optimizations
+
+#### Rendering Optimization
+- Virtual scrolling for large datasets
+- Memoized components to prevent unnecessary rerenders
+- Debounced search and filter operations
+
+#### Data Management
+- Efficient data normalization in Redux store
+- Selective updates to prevent full table rerenders
+- Cached API responses with TanStack Query
+
+### 5. Error Handling
+
+#### Strategy
+- Global error boundary for React errors
+- Typed API responses for better error handling
+- Graceful degradation when WebSocket fails
+- User-friendly error messages and recovery options
+
+### 6. Accessibility
+
+- ARIA labels and roles implemented
+- Keyboard navigation support
+- Color contrast compliance
+- Screen reader friendly markup
+
+## Component Communication
+
+```mermaid
+graph TD
+    A[TokenTable] --> B[TableHeader]
+    A --> C[TokenRow]
+    A --> D[TableFilters]
+    C --> E[WebSocket Updates]
+    D --> F[Redux Store]
+    E --> F
+    F --> A
+```
+
+## Future Considerations
+
+1. **Scalability**
+   - Implement pagination for larger datasets
+   - Add server-side filtering and sorting
+   - Consider WebSocket message batching
+
+2. **Features**
+   - Add advanced charting capabilities
+   - Implement user preferences persistence
+   - Add more trading pair analytics
+
+3. **Performance**
+   - Implement service workers for offline support
+   - Add progressive loading for large datasets
+   - Optimize WebSocket message frequency
+
+## Testing Strategy
+
+- Unit tests for utility functions and hooks
+- Component tests with React Testing Library
+- Integration tests for critical user flows
+- E2E tests for main trading features
+
+## Security Considerations
+
+- Rate limiting on API routes
+- Input validation and sanitization
+- CSRF protection
+- Secure WebSocket connection handling
+
+## Development Workflow
+
+- Feature branching strategy
+- Automated testing in CI/CD
+- Code review requirements
+- Documentation updates with code changes
